@@ -33,7 +33,7 @@ app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internet Server Errorr";
   res.status(statusCode).json({
-    Success: false,
+    success: false,
     statusCode,
     message,
   });
