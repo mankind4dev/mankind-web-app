@@ -17,7 +17,7 @@ export const signup = async (req, res, next) => {
     //return res.status(400).json({ message: "All field are required"})
     next(errorHandler(400, "All fields required to fill"));
   }
-  
+
   //to hash password in other to hind it brom the browser
   const hashedPassword = bcryptjs.hashSync(password, 10);
 
@@ -57,6 +57,7 @@ export const signin = async (req, res, next) => {
     const token = jwt.sign(
       {
         id: validUser._id,
+        isAdmin: validUser.isAdmin,
       },
       process.env.JWT_SECRET
     );
@@ -80,7 +81,10 @@ export const google = async (req, res, next) => {
   try {
     const user = await User.findOne({ email });
     if (user) {
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const token = jwt.sign(
+        { id: user._id, isAdmin: user.isAdmin },
+        process.env.JWT_SECRET
+      );
       const { password, ...rest } = user._doc;
       res
         .status(200)
@@ -112,7 +116,10 @@ export const google = async (req, res, next) => {
       });
       //to save the new user
       await newUswer.save();
-      const token = jwt.sign({ id: newUswer._id }, process.env.JWT_SECRET);
+      const token = jwt.sign(
+        { id: newUswer._id, isAdmin: newUswer.isAdmin },
+        process.env.JWT_SECRET
+      );
       const { password, ...rest } = newUswer._doc;
       res
         .status(200)
