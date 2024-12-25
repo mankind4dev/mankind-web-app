@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Alert, Button, FileInput, Select, TextInput } from "flowbite-react";
+import { Alert, Button, FileInput, Select, Spinner, TextInput } from "flowbite-react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { app } from "../firebase";
@@ -12,12 +12,18 @@ import {
 } from "firebase/storage";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
 
 export default function CreatePost() {
+  const {currentUser, loading, error} = useSelector((state) => state.user)
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
+  const [publishError, setPublishError] = useState(null) 
+  const navigate = useNavigate()
 
   const handleUploadImage = async () => {
     try {
@@ -56,13 +62,41 @@ export default function CreatePost() {
       console.log(error);
     }
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await fetch("/api/post/create", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(formData),
+      })
+      const data = await res.json()
+
+      if(!res.ok){
+        setPublishError(data.message)
+        return
+      }
+      // if(res.success === false){
+      //   setPublishError(data.message)
+      //   return
+      // }
+      if(res.ok){
+        setPublishError(null)
+        navigate(`/post/${data.slug}`)
+      }
+
+    } catch (error) {
+      setPublishError("somethinf went wrong")
+    }
+  }
   return (
     <>
       <div className="p-3 max-w-3xl mx-auto min-h-screen">
         <h1 className="text-center text-3xl font-semibold mb-4">
           Create a post
         </h1>
-        <form action="" className="">
+        <form onSubmit={handleSubmit} className="">
           <div className="flex flex-col gap-4 sm:flex-row justify-between mb-6">
             <TextInput
               type="text"
@@ -70,8 +104,15 @@ export default function CreatePost() {
               required
               id="title"
               className="flex-1"
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
             />
-            <Select>
+            <Select
+              onChange={(e) =>
+                setFormData({ ...formData, category: e.target.value })
+              }
+            >
               <option value="Uncategorized">Select a category</option>
               <option value="Javascript">Javascript</option>
               <option value="reactjs">React.js</option>
@@ -116,22 +157,38 @@ export default function CreatePost() {
           {formData.image && (
             <img src={formData.image} alt="upload " className="w-full h-72" />
           )}
-          <div className="relative h-72">
-            <ReactQuill
-              theme="snow"
-              placeholder="Write something..."
-              className="mb-12 h-full"
-              style={{ minHeight: "200px" }}
-            />
-          </div>
+          <ReactQuill
+            theme="snow"
+            placeholder="Write something..."
+            className="mb-12 h-72"
+            required
+            onChange={(value) => setFormData({ ...formData, content: value })}
+          />
           <Button
             type="submit"
             required
             gradientDuoTone="purpleToPink"
             className="mt-20 md:mt-14 w-full"
+            disabled={loading}
           >
-            Publish
+            {loading ? (
+              <>
+              <Spinner size="sm" />
+              <p className="">Loading...</p>
+              </>
+            ) : (
+              <>
+              <p className="">Publish</p>
+              </>
+            )}
           </Button>
+          {
+            publishError && (
+              <Alert className="mt-5" color="failure">
+                {publishError}
+              </Alert>
+            )
+          }
         </form>
       </div>
     </>
