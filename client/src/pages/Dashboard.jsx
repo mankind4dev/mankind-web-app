@@ -8,6 +8,7 @@ export default function Dashboard() {
   const [tab, setTab] = useState("");
 
   useEffect(() => {
+    // how to seperste darshboardSidebar and  dashboardProfile url
     const urlParams = new URLSearchParams(location.search);
     const tabFromUrl = urlParams.get("tab");
     if (tabFromUrl) {
@@ -16,8 +17,8 @@ export default function Dashboard() {
   }, [location.search]);
   return (
     <>
-      <div className="min-h-screen flex flex-col md:flex-row">
-        <div className="md:w-56">
+      <div className="min-h-screen flex flex-col  md:flex-row">
+        <div className="md:w-96">
           {/* sidebar */}
           <DashSidebar />
         </div>

@@ -11,6 +11,8 @@ import OAuth from "../components/OAuth";
 
 export default function Signin() {
   const [formData, setFormData] = useState({});
+  //const [errorMessage, setErrorMessage] = useState(null)
+  //const [loading, setLoading] = useState(false)
   const dispatch = useDispatch();
   const { loading, error: errorMessage } = useSelector((state) => state.user);
   const navigate = useNavigate();
@@ -22,6 +24,7 @@ export default function Signin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
+      // return setErrorMessage("Please fill out all fields.");
       return dispatch(signInFailure("Please fill out all fields."));
     }
     try {
@@ -38,7 +41,7 @@ export default function Signin() {
         //return setErrorMessage(data.message);
         dispatch(signInFailure(data.message));
       }
-  
+      // setLoading(false)
       if (res.ok) {
         dispatch(signInSuccess(data))
         navigate("/");
@@ -55,7 +58,7 @@ export default function Signin() {
       <div className="flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5">
         {/* Left side */}
         <div className="flex-1">
-          <Link to="/" className="    font-bold dark:text-white text-4xl">
+          <Link to="/" className="font-bold dark:text-white text-4xl">
             <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white">
               Mankind
             </span>

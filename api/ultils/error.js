@@ -1,4 +1,4 @@
-import { Error } from "mongoose";
+// import { Error } from "mongoose";
 
 export const errorHandler = (statusCode, message) => {
   const error = new Error();
@@ -6,3 +6,4 @@ export const errorHandler = (statusCode, message) => {
   error.message = message;
   return error;
 };
+ 

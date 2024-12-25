@@ -5,6 +5,16 @@ import { persistReducer, persistStore} from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
 
+// import userReducer from "./user/userSlice";
+// export const store = configureStore({
+//   reducer:{
+//     user: userReducer,
+//     them: themeReducer,
+//   }
+// })
+
+//to store our data inside redux-persist to keep it display 
+//whenever we refresh our page
 const rootReducer = combineReducers({
   user: userReducer,
   theme: themeReducer,
@@ -16,8 +26,12 @@ const persistConfig = {
   version: 1,
 };
 
+
+//to store our data inside redux-persist to keep it display 
+//whenever we refresh our page
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+//middlerware to prevent a defuat error from the  redux error
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>

@@ -28,10 +28,10 @@ export default function DashSidebar() {
             >
               Profile
             </Sidebar.Item>
+          </Link>
             <Sidebar.Item icon={HiArrowSmRight} className="cursor-pointer" as='div'>
               Sign Out
             </Sidebar.Item>
-          </Link>
         </Sidebar.ItemGroup>
       </Sidebar.Items>
     </Sidebar>

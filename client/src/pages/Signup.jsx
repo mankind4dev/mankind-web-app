@@ -7,7 +7,7 @@ export default function Signup() {
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
@@ -19,20 +19,21 @@ export default function Signup() {
       return setErrorMessage("Please fill out all fields.");
     }
     try {
-      setLoading(true);
-      setErrorMessage(null);
+      setLoading(true);//when trying to signup, set this true
+      setErrorMessage(null);//when there error from the request 
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       const data = await res.json();
+      //if there is no error when the trying to signup
       if (data.success === false) {
-        return setErrorMessage(data.message);
+        return setErrorMessage(data.message); //if everything is ok, 
       }
       setLoading(false);
-      if(res.ok){
-        navigate("/sign-in")
+      if (res.ok) {
+        navigate("/sign-in");
       }
     } catch (error) {
       setErrorMessage(error.message);
@@ -87,7 +88,11 @@ export default function Signup() {
                 onChange={handleChange}
               />
             </div>
-            <Button gradientDuoTone="purpleToBlue" type="submit" disabled={loading}>
+            <Button
+              gradientDuoTone="purpleToBlue"
+              type="submit"
+              disabled={loading}
+            >
               {loading ? (
                 <>
                   <Spinner size="sm" />

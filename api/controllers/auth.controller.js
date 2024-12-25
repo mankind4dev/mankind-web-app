@@ -14,9 +14,11 @@ export const signup = async (req, res, next) => {
     email === "" ||
     password === ""
   ) {
+    //return res.status(400).json({ message: "All field are required"})
     next(errorHandler(400, "All fields required to fill"));
   }
-
+  
+  //to hash password in other to hind it brom the browser
   const hashedPassword = bcryptjs.hashSync(password, 10);
 
   const newUser = new User({
@@ -29,6 +31,8 @@ export const signup = async (req, res, next) => {
     await newUser.save();
     res.json("Congratulations, Signup Successfuly");
   } catch (error) {
+    //to catch error in the browser
+    //res.status(500).json({ message: error.message})
     next(error);
   }
 };
@@ -49,6 +53,7 @@ export const signin = async (req, res, next) => {
       return next(errorHandler(400, "Invalid Credientials"));
     }
 
+    //To authenticate the user, find the data of the credientials to be able to sign
     const token = jwt.sign(
       {
         id: validUser._id,
@@ -63,6 +68,7 @@ export const signin = async (req, res, next) => {
       .cookie("access_token", token, {
         httpOnly: true,
       })
+      //.json(validUser)
       .json(rest);
   } catch (error) {
     next(error);
@@ -75,31 +81,47 @@ export const google = async (req, res, next) => {
     const user = await User.findOne({ email });
     if (user) {
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-      const { password, ...rest } = user._doc
-        res.status(200)
+      const { password, ...rest } = user._doc;
+      res
+        .status(200)
         .cookie("access_token", token, {
           httpOnly: true,
         })
         .json(rest);
     } else {
+      //password is required so have to create new random password
       const generatedPassword =
-        Math.random.toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8) +
         Math.random().toString(36).slice(-8);
-        const hashedPassword = bcryptjs.hashSync(generatedPassword, 10)
-        const newUswer = new User({
-          username: name.toLowerCase().split(' ').join('') + Math.random().toString(9).slice(-4),
-          email,
-          password: hashedPassword,
-          profilePicture: googlePhotoUrl
+      const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+      const newUswer = new User({
+        //to marge the firstName and the lastName together with lowerCase all through
+        //like this Sunday Ogunmakin = sundayogunmakin
+        //and add 4 number at the end of the new created user name
+        //like sundayogunmakine1234
+        //.toString(36) will add number and letters
+        //.toString(9) will add only number
+        //.slice(-3) will add only 3number or letters number
+        username:
+          name.toLowerCase().split(" ").join("") +
+          Math.random().toString(9).slice(-4),
+        email,
+        password: hashedPassword,
+        //
+        profilePicture: googlePhotoUrl,
+      });
+      //to save the new user
+      await newUswer.save();
+      const token = jwt.sign({ id: newUswer._id }, process.env.JWT_SECRET);
+      const { password, ...rest } = newUswer._doc;
+      res
+        .status(200)
+        .cookie("access_token", token, {
+          httpOnly: true,
         })
-        await newUswer.save()
-        const token = jwt.sign({ id: newUswer._id}, process.env.JWT_SECRET)
-          const {password, ...rest} = newUswer._doc
-          res.status(200).cookie("access_token", token, {
-            httpOnly: true
-          }).json(rest)
+        .json(rest);
     }
   } catch (error) {
-    next(error)
+    next(error);
   }
 };

@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
         "https://www.google.com/url?sa=i&url=https%3A%2F%2Fsupport.hubstaff.com%2Fprofile-pictures-for-hubstaff-talent%2F&psig=AOvVaw13xP0Vy-nRLcz6Ws0yc6Et&ust=1726187309792000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCLCQ-v2SvIgDFQAAAAAdAAAAABAE",
     },
   },
-  { timestamps: true }
+  { timestamps: true } //Timee  oof creation annd  time of updating
 );
 
 const User = mongoose.model("User", userSchema);
