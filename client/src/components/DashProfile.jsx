@@ -1,4 +1,4 @@
-import { Alert, Button, Spinner, TextInput } from "flowbite-react";
+import { Alert, Button, Modal, Spinner, TextInput } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,9 +17,12 @@ import {
   updateStart,
   updateSuccess,
 } from "../redux/user/userSlice";
+import DeleteAcc from "./DeleteAcc";
+import SignOut from "./SignOut";
 
 export default function DashProfile() {
-  const { currentUser, loading } = useSelector((state) => state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
+  const [formData, setFormData] = useState({});
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null);
@@ -27,7 +30,8 @@ export default function DashProfile() {
   const [imageFileUploading, setImageFileUploading] = useState(false);
   const [updateUserSuccess, setUpdateUsersuccess] = useState(null)
   const [updateUserError, setUpdateUserError] = useState(null)
-  const [formData, setFormData] = useState({ });
+  // const [showModal, setShowModal] = useState(false)
+
   const filePickerRef = useRef();
   const dispatch = useDispatch();
 
@@ -231,13 +235,18 @@ export default function DashProfile() {
           )}
           </Button>
         </form>
-        <div className="text-red-500 flex justify-between mt-5">
-          <span>Sign Out</span>
-          <span>Delete Account</span>
+        <div className="flex justify-between mt-5">
+          <DeleteAcc />
+          <SignOut />
         </div>
         {updateUserSuccess &&(
           <Alert color="success" className="mt-5">
             {updateUserSuccess}
+          </Alert>
+        )}
+        {error &&(
+          <Alert color="success" className="mt-5">
+            {error}
           </Alert>
         )}
         {updateUserError &&(
@@ -245,6 +254,7 @@ export default function DashProfile() {
             {updateUserError}
           </Alert>
         )}
+        
       </div>
     </>
   );
