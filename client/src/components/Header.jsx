@@ -12,6 +12,7 @@ import { FaMoon, FaSun } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 import { toggleTheme } from "../redux/theme/themeSlice";
+import SignOut from "./SignOut";
 
 export default function Header() {
   const path = useLocation().pathname;
@@ -67,7 +68,9 @@ export default function Header() {
               <Link to="/dashboard?tab=profile">
                 <DropdownItem>Profile</DropdownItem>
                 <DropdownDivider />
-                <DropdownItem>Sign Out</DropdownItem>
+                <DropdownItem>
+                  <SignOut />
+                </DropdownItem>
               </Link>
             </Dropdown>
           </>
