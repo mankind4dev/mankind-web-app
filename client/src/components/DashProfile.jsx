@@ -19,6 +19,7 @@ import {
 } from "../redux/user/userSlice";
 import DeleteAcc from "./DeleteAcc";
 import SignOut from "./SignOut";
+import AdminPost from "./AdminPost";
 
 export default function DashProfile() {
   const { currentUser, loading, error } = useSelector((state) => state.user);
@@ -223,11 +224,11 @@ export default function DashProfile() {
             placeholder="****************"
             onChange={handleChange}
           />
-            <Button   type="submit" gradientDuoTone="purpleToBlue">
+            <Button type="submit" gradientDuoTone="purpleToBlue" outline disabled={loading || imageFileUploading}>
           {loading ? (
             <>
             <Spinner size="sm" />
-            <p className="text-[20px] capitalize">loading</p>
+            <p className="text-[20px] capitalize ml-2">loading...</p>
             </>
           ): (
 
@@ -239,6 +240,7 @@ export default function DashProfile() {
           <DeleteAcc />
           <SignOut />
         </div>
+        <AdminPost />
         {updateUserSuccess &&(
           <Alert color="success" className="mt-5">
             {updateUserSuccess}
