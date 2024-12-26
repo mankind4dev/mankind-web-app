@@ -1,13 +1,18 @@
-import { Button, Spinner, TabItem, Table } from "flowbite-react";
+import { Button, Modal, ModalBody, ModalHeader, Spinner, TabItem, Table } from "flowbite-react";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import DeletePost from "./DeletePost";
+import { IoIosInformationCircleOutline } from "react-icons/io";
 
 export default function DashPost() {
-  const { currentUser,  error } = useSelector((state) => state.user);
- const [loading, setLoading] = useState(false)
+  const { currentUser, error } = useSelector((state) => state.user);
+  const [loading, setLoading] = useState(false);
   const [userPosts, setUserPosts] = useState([]);
-  const [showMore, setShowMore] = useState(true);
+  const [showMore, setShowMore] = useState(true); 
+  const [showModal, setShowModal] = useState(false);
+  const [postIdToDelete, setPostIdToDelete] = useState("")
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -32,22 +37,44 @@ export default function DashPost() {
   const handleShowMore = async () => {
     const startIndex = userPosts.length;
     try {
-      setLoading(true)
+      setLoading(true);
       const res = await fetch(
         `/api/post/getposts?userId=${currentUser._id}&startIndex=${startIndex}`
       );
-      const data = await res.json()
-      if(res.ok){
-        setUserPosts((prev) => [...prev, ...data.posts])
-        if(data.posts.length < 9){
-          setShowMore(false)
-          setLoading(false)
+      const data = await res.json();
+      if (res.ok) {
+        setUserPosts((prev) => [...prev, ...data.posts]);
+        if (data.posts.length < 9) {
+          setShowMore(false);
+          setLoading(false);
         }
       }
-      setLoading(false)
+      setLoading(false);
     } catch (error) {
-      setLoading(false)
+      setLoading(false);
       console.log(error.message);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    setShowModal(false);
+    try {
+      const res = await fetch(
+        `/api/post/deletepost/${postIdToDelete}/${currentUser._id}`,
+        {
+          method: "DELETE",
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        dispatch(deleteUserFailure(data.message));
+      } else {
+        setUserPosts((prev) =>
+          prev.filter((post) => post._id !== postIdToDelete)
+        );
+      }
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
     }
   };
 
@@ -67,9 +94,9 @@ export default function DashPost() {
                   <span className="">Edit</span>
                 </Table.HeadCell>
               </Table.Head>
-              {userPosts.map((post) => (
+              {userPosts.map((post, index) => (
                 <>
-                  <Table.Body className="divide-y">
+                  <Table.Body className="divide-y" key={index}>
                     <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                       <Table.Cell className="">
                         {new Date(post.updatedAt).toLocaleDateString()}
@@ -92,9 +119,15 @@ export default function DashPost() {
                         </Link>
                       </Table.Cell>
                       <Table.Cell>{post.category}</Table.Cell>
-                      <Table.Cell>
-                        <span className="font-medium text-teal-500 hover:underline">
-                          Delete
+                      <Table.Cell> 
+                        <span
+                          onClick={() => {
+                            setShowModal(true);
+                            setPostIdToDelete(post._id);
+                          }}
+                          className="text-red-800 hover:text-red-600 hover:underline cursor-pointer"
+                        >
+                          Delete Post
                         </span>
                       </Table.Cell>
                       <Table.Cell>
@@ -111,19 +144,19 @@ export default function DashPost() {
             </Table>
             {showMore && (
               <button
-                onClick={handleShowMore} 
+                onClick={handleShowMore}
                 className="flex justify-center text-center w-full text-teal-500 self-center text-sm py-5"
               >
-               {loading ? (
-                <> 
-                <Spinner size="sm" />
-                <p className="capitalize ml-2 text-teal-500">loading...</p>
-                </>
-               ) : (
-                <>
-                <p className="">show more</p>
-                </>
-               )}
+                {loading ? (
+                  <>
+                    <Spinner size="sm" />
+                    <p className="capitalize ml-2 text-teal-500">loading...</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="">show more</p>
+                  </>
+                )}
               </button>
             )}
           </>
@@ -135,6 +168,30 @@ export default function DashPost() {
           </>
         )}
       </div>
+      <Modal
+              show={showModal}
+              onClose={() => setShowModal(false)}
+              popup
+              size="md"
+            >
+              <ModalHeader />
+              <ModalBody>
+                <div className="text-center">
+                  <IoIosInformationCircleOutline className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
+                  <h3 className="mb-5 text-lg text-gray-500 dark:bg-gray-400">
+                    Are you sure you want to delete this post
+                  </h3>
+                  <div className="flex justify-center gap-4">
+                    <Button color="failure" onClick={handleDeletePost}>
+                      Yes, I'm sure
+                    </Button>
+                    <Button color="gray" onClick={() => setShowModal(false)}>
+                      No, cancel
+                    </Button>
+                  </div>
+                </div>
+              </ModalBody>
+            </Modal>
     </>
   );
 }
