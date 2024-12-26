@@ -1,12 +1,13 @@
-import { TabItem, Table } from "flowbite-react";
+import { Button, Spinner, TabItem, Table } from "flowbite-react";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 export default function DashPost() {
-  const { currentUser, loading, error } = useSelector((state) => state.user);
+  const { currentUser,  error } = useSelector((state) => state.user);
+ const [loading, setLoading] = useState(false)
   const [userPosts, setUserPosts] = useState([]);
-  console.log(userPosts);
+  const [showMore, setShowMore] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -15,6 +16,9 @@ export default function DashPost() {
         const data = await res.json();
         if (res.ok) {
           setUserPosts(data.posts);
+          if (data.posts.length < 9) {
+            setShowMore(false);
+          }
         }
       } catch (error) {
         console.log(error);
@@ -25,9 +29,31 @@ export default function DashPost() {
     }
   }, [currentUser._id]);
 
+  const handleShowMore = async () => {
+    const startIndex = userPosts.length;
+    try {
+      setLoading(true)
+      const res = await fetch(
+        `/api/post/getposts?userId=${currentUser._id}&startIndex=${startIndex}`
+      );
+      const data = await res.json()
+      if(res.ok){
+        setUserPosts((prev) => [...prev, ...data.posts])
+        if(data.posts.length < 9){
+          setShowMore(false)
+          setLoading(false)
+        }
+      }
+      setLoading(false)
+    } catch (error) {
+      setLoading(false)
+      console.log(error.message);
+    }
+  };
+
   return (
     <>
-      <div className="table-auto w-full ml-0 overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700">
+      <div className="table-auto w-full overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700">
         {currentUser.isAdmin && userPosts.length > 0 ? (
           <>
             <Table hoverable className="shadow-sm">
@@ -83,6 +109,23 @@ export default function DashPost() {
                 </>
               ))}
             </Table>
+            {showMore && (
+              <button
+                onClick={handleShowMore} 
+                className="flex justify-center text-center w-full text-teal-500 self-center text-sm py-5"
+              >
+               {loading ? (
+                <> 
+                <Spinner size="sm" />
+                <p className="capitalize ml-2 text-teal-500">loading...</p>
+                </>
+               ) : (
+                <>
+                <p className="">show more</p>
+                </>
+               )}
+              </button>
+            )}
           </>
         ) : (
           <>

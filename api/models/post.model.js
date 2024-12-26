@@ -23,6 +23,7 @@ const postSchema = new mongoose.Schema(
     category: {
       type: String,
       default: "uncategorized",
+      unique: false,
     },
     slug: {
       type: String,
@@ -30,7 +31,8 @@ const postSchema = new mongoose.Schema(
       unique: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true } 
+
 );
 
 const Post = mongoose.model("Post", postSchema);

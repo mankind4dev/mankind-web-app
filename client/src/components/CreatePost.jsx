@@ -87,7 +87,7 @@ export default function CreatePost() {
       }
 
     } catch (error) {
-      setPublishError("somethinf went wrong")
+      setPublishError("something went wrong")
     }
   }
   return (
@@ -113,7 +113,7 @@ export default function CreatePost() {
                 setFormData({ ...formData, category: e.target.value })
               }
             >
-              <option value="Uncategorized">Select a category</option>
+              <option value="uncategorized">Select a category</option>
               <option value="Javascript">Javascript</option>
               <option value="reactjs">React.js</option>
               <option value="nextjs">Next.js</option>
